@@ -49,16 +49,6 @@
 
 (declare find-class)
 
-(defn class-of
-  "Returns the class of which the object is a direct instance."
-  ([object] (class-of object nil (:env (meta object) *env*)))
-  ([object error?] (class-of object error? (:env (meta object) *env*)))
-  ([object error? env]
-   (let [class (type object)]
-     (if (qualified-keyword? class)
-       (find-class class error? env)
-       class))))
-
 (defmulti type-of
   "Dispatch function for the multimethods of the metaobject protocol."
   {:arglists '([obj & args])}
@@ -69,6 +59,12 @@
   [obj & args]
   (type obj))
 
+(defmethod type-of clojure.lang.Keyword
+  [obj & args]
+  (if (isa? obj :rdfs/Class)
+    obj
+    clojure.lang.Keyword))
+
 (defmethod type-of clojure.lang.APersistentMap
   [obj & args]
   (if-some [rdf-type (:rdf/type obj)]
@@ -76,6 +72,16 @@
       (first (sort isa? rdf-type))
       rdf-type)
     (type obj)))
+
+(defn class-of
+  "Returns the class of which the object is a direct instance."
+  ([object] (class-of object nil (:env (meta object) *env*)))
+  ([object error?] (class-of object error? (:env (meta object) *env*)))
+  ([object error? env]
+   (let [class (type-of object)]
+     (if (qualified-keyword? class)
+       (find-class class error? env)
+       class))))
 
 (defmulti add-dependent
   "This multimethod adds dependent to the dependents of
@@ -479,7 +485,7 @@
   "Resolves a class by ident in some environment."
   {:arglists '([ident env])}
   (fn [ident env]
-    [(type-of ident) (type env)])
+    [(type-of ident) (type-of env)])
   :hierarchy #'*metaobjects*)
 
 (defn find-class
@@ -490,12 +496,13 @@
    (find-class ident error? *env*))
   ([ident error? env]
    (or (find-class-using-env ident env)
+       (and env (find-class-using-env ident nil))
        (and error? (throw (ex-info "Could not resolve class by name." {:ident ident}))))))
 
 (defmulti initialize-instance
   "Called by make-instance to initialize a newly created instance."
   {:arglists '([instance & {:as initargs}])}
-  (fn [instance & initargs] (type instance))
+  type-of
   :hierarchy #'*metaobjects*)
 
 (defmulti make-instance
@@ -537,7 +544,7 @@
 (defmulti reinitialize-instance
   "Used to update an instance with validated initargs."
   {:arglists '([instance & {:as initargs}])}
-  (fn [instance & initargs] (type instance))
+  type-of
   :hierarchy #'*metaobjects*)
 
 (defmulti remove-dependent
@@ -552,7 +559,7 @@
   add-dependent or remove-dependent while a call to map-dependents on
   the same class or multimethod is in progress is unspecified."
   {:arglists '([metaobject dependent])}
-  (fn [metaobject dependent] (type metaobject))
+  type-of
   :hierarchy #'*metaobjects*)
 
 (defmulti remove-direct-subclass
@@ -580,7 +587,7 @@
   reinitialize-instance, update-instance-for-redefined-class, and
   update-instance-for-different-class."
   {:arglists '([instance slot-names & {:as initargs}])}
-  (fn [instance slot-names & initargs] (type instance))
+  type-of
   :hierarchy #'*metaobjects*)
 
 (defmulti slot-bound-using-class?
@@ -852,7 +859,7 @@
   applicable to instances of the original class."
   {:arglists '([previous current & {:as initargs}])}
   (fn [previous current & initargs]
-    [(type previous) (type current)])
+    [(type-of previous) (type-of current)])
   :hierarchy #'*metaobjects*)
 
 (defmulti update-instance-for-redefined-class
@@ -1023,11 +1030,6 @@
   [class]
   (some-> (find-class class)
           (finalize-inheritance)))
-
-(defmethod find-class-using-env :default
-  [ident env]
-  (some-> (find-class ident)
-          (find-class-using-env env)))
 
 (defmethod initialize-instance :default
   [instance & {:as initargs}]
