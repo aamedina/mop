@@ -59,12 +59,6 @@
   [obj & args]
   (type obj))
 
-(defmethod type-of clojure.lang.Keyword
-  [obj & args]
-  (if (isa? obj :rdfs/Class)
-    obj
-    clojure.lang.Keyword))
-
 (defmethod type-of clojure.lang.APersistentMap
   [obj & args]
   (if-some [rdf-type (:rdf/type obj)]
@@ -486,6 +480,13 @@
   {:arglists '([ident env])}
   (fn [ident env]
     [(type-of ident) (type-of env)])
+  :hierarchy #'*metaobjects*)
+
+(defmulti intern-class-using-env
+  "Interns a class using some environment."
+  {:arglists '([class env])}
+  (fn [class env]
+    [(type-of class) (type-of env)])
   :hierarchy #'*metaobjects*)
 
 (defn find-class
@@ -918,107 +919,107 @@
   type-of
   :hierarchy #'*metaobjects*)
 
-(defmethod add-dependent :default
+(defmethod add-dependent clojure.lang.Keyword
   [metaobject dependent]
   (some-> (find-class metaobject)
           (add-dependent dependent)))
 
-(defmethod add-direct-subclass :default
+(defmethod add-direct-subclass clojure.lang.Keyword
   [superclass subclass]
   (some-> (find-class superclass)
           (add-direct-subclass subclass)))
 
-(defmethod allocate-instance :default
+(defmethod allocate-instance clojure.lang.Keyword
   [class & {:as initargs}]
   (some-> (find-class class)
           (allocate-instance initargs)))
 
-(defmethod change-class :default
+(defmethod change-class clojure.lang.Keyword
   [instance new-class & {:as initargs}]
   (some-> (find-class instance)
           (change-class new-class initargs)))
 
-(defmethod class-default-initargs :default
+(defmethod class-default-initargs clojure.lang.Keyword
   [class]
   (some-> (find-class class)
           (class-default-initargs)))
 
-(defmethod class-direct-default-initargs :default
+(defmethod class-direct-default-initargs clojure.lang.Keyword
   [class]
   (some-> (find-class class)
           (class-direct-default-initargs)))
 
-(defmethod class-direct-slots :default
+(defmethod class-direct-slots clojure.lang.Keyword
   [class]
   (some-> (find-class class)
           (class-direct-slots)))
 
-(defmethod class-direct-subclasses :default
+(defmethod class-direct-subclasses clojure.lang.Keyword
   [class]
   (some-> (find-class class)
           (class-direct-subclasses)))
 
-(defmethod class-direct-superclasses :default
+(defmethod class-direct-superclasses clojure.lang.Keyword
   [class]
   (some-> (find-class class)
           (class-direct-superclasses)))
 
-(defmethod class-finalized? :default
+(defmethod class-finalized? clojure.lang.Keyword
   [class]
   (some-> (find-class class)
           (class-finalized?)))
 
-(defmethod class-name :default
+(defmethod class-name clojure.lang.Keyword
   [class]
   (some-> (find-class class)
           (class-name)))
 
-(defmethod class-precedence-list :default
+(defmethod class-precedence-list clojure.lang.Keyword
   [class]
   (some-> (find-class class)
           (class-precedence-list)))
 
-(defmethod class-prototype :default
+(defmethod class-prototype clojure.lang.Keyword
   [class]
   (some-> (find-class class)
           (class-prototype)))
 
-(defmethod class-slots :default
+(defmethod class-slots clojure.lang.Keyword
   [class]
   (some-> (find-class class)
           (class-slots)))
 
-(defmethod compute-class-precedence-list :default
+(defmethod compute-class-precedence-list clojure.lang.Keyword
   [class]
   (some-> (find-class class)
           (compute-class-precedence-list)))
 
-(defmethod compute-default-initargs :default
+(defmethod compute-default-initargs clojure.lang.Keyword
   [class]
   (some-> (find-class class)
           (compute-default-initargs)))
 
-(defmethod compute-effective-slot-definition :default
+(defmethod compute-effective-slot-definition clojure.lang.Keyword
   [class slot direct-slot-definitions]
   (some-> (find-class class)
           (compute-effective-slot-definition slot direct-slot-definitions)))
 
-(defmethod compute-slots :default
+(defmethod compute-slots clojure.lang.Keyword
   [class]
   (some-> (find-class class)
           (compute-slots)))
 
-(defmethod direct-slot-definition-class :default
+(defmethod direct-slot-definition-class clojure.lang.Keyword
   [class & {:as initargs}]
   (some-> (find-class class)
           (direct-slot-definition-class initargs)))
 
-(defmethod effective-slot-definition-class :default
+(defmethod effective-slot-definition-class clojure.lang.Keyword
   [class & {:as initargs}]
   (some-> (find-class class)
           (effective-slot-definition-class initargs)))
 
-(defmethod ensure-class-using-class :default
+(defmethod ensure-class-using-class clojure.lang.Keyword
   [class class-name &
    {:keys [direct-default-initargs direct-slots direct-superclasses name
            metaclass],
@@ -1026,147 +1027,147 @@
   (some-> (find-class class)
           (ensure-class-using-class class-name initargs)))
 
-(defmethod finalize-inheritance :default
+(defmethod finalize-inheritance clojure.lang.Keyword
   [class]
   (some-> (find-class class)
           (finalize-inheritance)))
 
-(defmethod initialize-instance :default
+(defmethod initialize-instance clojure.lang.Keyword
   [instance & {:as initargs}]
   (some-> (find-class instance)
           (initialize-instance initargs)))
 
-(defmethod make-instance :default
+(defmethod make-instance clojure.lang.Keyword
   [class & {:as initargs}]
   (some-> (find-class class)
           (make-instance initargs)))
 
-(defmethod make-instances-obsolete :default
+(defmethod make-instances-obsolete clojure.lang.Keyword
   [class]
   (some-> (find-class class)
           (make-instances-obsolete)))
 
-(defmethod map-dependents :default
+(defmethod map-dependents clojure.lang.Keyword
   [f metaobject]
   (some-> (find-class f)
           (map-dependents metaobject)))
 
-(defmethod reinitialize-instance :default
+(defmethod reinitialize-instance clojure.lang.Keyword
   [instance & {:as initargs}]
   (some-> (find-class instance)
           (reinitialize-instance initargs)))
 
-(defmethod remove-dependent :default
+(defmethod remove-dependent clojure.lang.Keyword
   [metaobject dependent]
   (some-> (find-class metaobject)
           (remove-dependent dependent)))
 
-(defmethod remove-direct-subclass :default
+(defmethod remove-direct-subclass clojure.lang.Keyword
   [superclass subclass]
   (some-> (find-class superclass)
           (remove-direct-subclass subclass)))
 
-(defmethod set-slot-value-using-class :default
+(defmethod set-slot-value-using-class clojure.lang.Keyword
   [class object slot new-value]
   (some-> (find-class class)
           (set-slot-value-using-class object slot new-value)))
 
-(defmethod shared-initialize :default
+(defmethod shared-initialize clojure.lang.Keyword
   [instance slot-names & {:as initargs}]
   (some-> (find-class instance)
           (shared-initialize slot-names initargs)))
 
-(defmethod slot-bound-using-class? :default
+(defmethod slot-bound-using-class? clojure.lang.Keyword
   [class object slot]
   (some-> (find-class class)
           (slot-bound-using-class? object slot)))
 
-(defmethod slot-definition-allocation :default
+(defmethod slot-definition-allocation clojure.lang.Keyword
   [slot]
   (some-> (find-class slot)
           (slot-definition-allocation)))
 
-(defmethod slot-definition-initargs :default
+(defmethod slot-definition-initargs clojure.lang.Keyword
   [slot]
   (some-> (find-class slot)
           (slot-definition-initargs)))
 
-(defmethod slot-definition-initform :default
+(defmethod slot-definition-initform clojure.lang.Keyword
   [slot]
   (some-> (find-class slot)
           (slot-definition-initform)))
 
-(defmethod slot-definition-initfunction :default
+(defmethod slot-definition-initfunction clojure.lang.Keyword
   [slot]
   (some-> (find-class slot)
           (slot-definition-initfunction)))
 
-(defmethod slot-definition-location :default
+(defmethod slot-definition-location clojure.lang.Keyword
   [slot]
   (some-> (find-class slot)
           (slot-definition-location)))
 
-(defmethod slot-definition-name :default
+(defmethod slot-definition-name clojure.lang.Keyword
   [slot]
   (some-> (find-class slot)
           (slot-definition-name)))
 
-(defmethod slot-definition-readers :default
+(defmethod slot-definition-readers clojure.lang.Keyword
   [slot]
   (some-> (find-class slot)
           (slot-definition-readers)))
 
-(defmethod slot-definition-type :default
+(defmethod slot-definition-type clojure.lang.Keyword
   [slot]
   (some-> (find-class slot)
           (slot-definition-type)))
 
-(defmethod slot-definition-writers :default
+(defmethod slot-definition-writers clojure.lang.Keyword
   [slot]
   (some-> (find-class slot)
           (slot-definition-writers)))
 
-(defmethod slot-exists-using-class? :default
+(defmethod slot-exists-using-class? clojure.lang.Keyword
   [class object slot-def]
   (some-> (find-class class)
           (slot-exists-using-class? object slot-def)))
 
-(defmethod slot-makunbound-using-class :default
+(defmethod slot-makunbound-using-class clojure.lang.Keyword
   [class instance slot-def]
   (some-> (find-class class)
           (slot-makunbound-using-class instance slot-def)))
 
-(defmethod slot-missing :default
+(defmethod slot-missing clojure.lang.Keyword
   [class object slot-name & {:as info}]
   (some-> (find-class class)
           (slot-missing object slot-name info)))
 
-(defmethod slot-unbound :default
+(defmethod slot-unbound clojure.lang.Keyword
   [class object slot-name]
   (some-> (find-class class)
           (slot-unbound object slot-name)))
 
-(defmethod slot-value-using-class :default
+(defmethod slot-value-using-class clojure.lang.Keyword
   [class object slot]
   (some-> (find-class class)
           (slot-value-using-class object slot)))
 
-(defmethod sniff :default
+(defmethod sniff clojure.lang.Keyword
   [x]
   (some-> (find-class x)
           (sniff)))
 
-(defmethod update-dependent :default
+(defmethod update-dependent clojure.lang.Keyword
   [class object slot-def]
   (some-> (find-class class)
           (update-dependent object slot-def)))
 
-(defmethod update-instance-for-different-class :default
+(defmethod update-instance-for-different-class clojure.lang.Keyword
   [previous current & {:as initargs}]
   (some-> (find-class previous)
           (update-instance-for-different-class current initargs)))
 
-(defmethod update-instance-for-redefined-class :default
+(defmethod update-instance-for-redefined-class clojure.lang.Keyword
   [instance added-slots discarded-slots property-list & {:as initargs}]
   (some-> (find-class instance)
           (update-instance-for-redefined-class added-slots
@@ -1174,7 +1175,7 @@
                                                property-list
                                                initargs)))
 
-(defmethod validate-superclass :default
+(defmethod validate-superclass clojure.lang.Keyword
   [class superclass]
   (some-> (find-class class)
           (validate-superclass superclass)))
