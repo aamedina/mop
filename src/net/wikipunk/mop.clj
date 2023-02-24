@@ -108,7 +108,7 @@
   superclass of the class."
   {:arglists '([superclass subclass])}
   (fn [superclass subclass]
-    [(type superclass) (type subclass)])
+    [(type-of superclass) (type-of subclass)])
   :hierarchy #'*metaobjects*)
 
 (defmulti change-class
@@ -119,7 +119,7 @@
   returns the same instance."
   {:arglists '([instance new-class & {:as initargs}])}
   (fn [instance new-class & initargs]
-    [(type instance) (type new-class)])
+    [(type-of instance) (type-of new-class)])
   :hierarchy #'*metaobjects*)
 
 (defmulti compute-class-precedence-list
@@ -924,10 +924,10 @@
   (some-> (find-class metaobject)
           (add-dependent dependent)))
 
-(defmethod add-direct-subclass clojure.lang.Keyword
+(defmethod add-direct-subclass [clojure.lang.Keyword clojure.lang.Keyword]
   [superclass subclass]
   (some-> (find-class superclass)
-          (add-direct-subclass subclass)))
+          (add-direct-subclass (find-class subclass))))
 
 (defmethod allocate-instance clojure.lang.Keyword
   [class & {:as initargs}]
@@ -1062,10 +1062,10 @@
   (some-> (find-class metaobject)
           (remove-dependent dependent)))
 
-(defmethod remove-direct-subclass clojure.lang.Keyword
+(defmethod remove-direct-subclass [clojure.lang.Keyword clojure.lang.Keyword]
   [superclass subclass]
   (some-> (find-class superclass)
-          (remove-direct-subclass subclass)))
+          (remove-direct-subclass (find-class subclass))))
 
 (defmethod set-slot-value-using-class clojure.lang.Keyword
   [class object slot new-value]
